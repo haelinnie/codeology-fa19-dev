@@ -40,3 +40,7 @@ def get_neighbors(target, k):
     for i in range(k):
         k_neighbors.append(simiarities[i][0])
     return k_neighbors
+
+
+
+def 
