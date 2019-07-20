@@ -1,3 +1,4 @@
+# -*- SIMILARITY -*-
 def cos_sim(a, b):
     """
     Return the cosine similarity between vector a and b.
@@ -11,11 +12,9 @@ def cos_sim(a, b):
     return numerator / denom
 
 
-
 def adj_cos_sim(a, b, avg_a, avg_b):
     """
-    Return the cosine similarity between vector a and b.
-    (Cosine similarity )
+    Return the adjusted cosine similarity between vector a and b.
     """
     adj_a, adj_b = [], []
     for val in a: #replace a, not necessarily a vector if we do OOP
@@ -26,21 +25,40 @@ def adj_cos_sim(a, b, avg_a, avg_b):
 
 
 
-def get_neighbors(target, k):
+# -*- DATA RETRIEVAL -*-
+def listGenres(movieId):
     """
-    Return a list of the k closest neighbors of target user,
-    where the closeness is based on cosine similarity between
-    the user vectors.
+    Takes in a movie's ID and returns a list of strings representing the genres
+    pertaining to the movie.
+    Access the movies dataframe to convert the large concatenated string
+    delimited by '|'.
     """
-    similarities = []
-    for i in users: #replace users
-        similarities.append([i, cos_sim(target, i)])
-    similarities.sort(key=lambda pair: -pair[1]) #negate to have larger sim scores come first
-    k_neighbors = []
-    for i in range(k):
-        k_neighbors.append(simiarities[i][0])
-    return k_neighbors
+    genres = movies.at[movieId, 'genres']  #change movies to whatever variable name the movies df has
+    genres = genres.split('|')
+    return genres
 
 
 
-def 
+# -*- MODEL EVALUATION -*-
+def mae(predicted, actual):
+    """
+    Takes in a list of predicted ratings and a list of actual ratings for a set
+    of movies and computes the mean absolute error of our predictions.
+    """
+    #maybe make some assertions, assume have same length & in right order
+    interm_total = 0
+    for i in range(len(predicted)):
+          interm_total += abs(predicted[i] - actual[i])
+    return interm_total / len(predicted)
+
+
+def rmse(predicted, actual):
+    """
+    Takes in a list of predicted ratings and a list of actual ratings for a set
+    of movies and computes the root mean square error of our predictions.
+    """
+    #maybe make some assertions, assume have same length & in right order
+    interm_total = 0
+    for i in range(len(predicted)):
+          interm_total += (predicted[i] - actual[i]) ** 2
+    return sqrt(interm_total / len(predicted))
