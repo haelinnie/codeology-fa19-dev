@@ -14,7 +14,7 @@ class kNN:
 
 
 
-    def prepared_data(self):
+    def prep_data(self):
         """
         Clean the ratings data by filtering out unpopular movies and inactive
         users.
@@ -28,18 +28,18 @@ class kNN:
         ratings = ratings.drop('timestamp', axis=1)
 
         ratings_active_usrs = self.handle_sparcity(ratings, 'userId', 100)
-        ratings_popular_movs = self.handle_sparcity(ratings_active_users, 'movieId', 100)
+        ratings_popular_movs = self.handle_sparcity(ratings_active_usrs, 'movieId', 100)
 
-        mov_usr_table = ratings_popular.pivot(index='movieId', columns='userId', values='rating').fillna(0)
-        movie_usr_csr = csr_matrix(mov_user_table)
+        mov_usr_table = ratings_popular_movs.pivot(index='movieId', columns='userId', values='rating').fillna(0)
+        mov_usr_csr = csr_matrix(mov_usr_table)
 
         title_ind_map = {movie: i
            for i, movie
-           in enumerate(list(movies.set_index('movieId').loc[mov_user_table.index].title))}
-        ind_title_map = {i: movie for movie, i in mov_ind_map.items()}
+           in enumerate(list(movies.set_index('movieId').loc[mov_usr_table.index].title))}
+        ind_title_map = {i: movie for movie, i in title_ind_map.items()}
         self.mappings = [title_ind_map, ind_title_map]
 
-        return movie_usr_csr
+        return mov_usr_csr
 
 
 
@@ -49,6 +49,22 @@ class kNN:
         to group by and a minimum count threshold to be met.
         """
         return df.groupby(group).filter(lambda x: len(x) >= threshold)
+
+
+
+
+    def recommend(self, base_movie, k=10, metric='cosine'):
+        """
+        """
+        mov_usr_csr = self.prep_data()
+        model = NearestNeighbors(n_neighbors=k+1, algorithm='brute', metric=metric, n_jobs=-1)
+        model.fit(mov_usr_csr)
+
+        base_ind = self.title_to_id(base_movie)
+        recommendations = model.kneighbors(X=mov_usr_csr[base_ind], return_distance=False)[0][1:]
+
+        rec_titles = [self.id_to_title(id) for id in recommendations]
+        return rec_titles
 
 
 
