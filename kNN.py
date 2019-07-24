@@ -1,14 +1,21 @@
-def get_neighbors(target, k):
-    """
-    Return a list of the k closest neighbors of target user,
-    where the closeness is based on cosine similarity between
-    the user vectors.
-    """
-    similarities = []
-    for i in users: #replace users
-        similarities.append([i, cos_sim(target, i)])
-    similarities.sort(key=lambda pair: -pair[1]) #negate to have larger sim scores come first
-    k_neighbors = []
-    for i in range(k):
-        k_neighbors.append(simiarities[i][0])
-    return k_neighbors
+import pandas as pd
+from scipy.sparse import csr_matrix
+from sklearn.neighbors import NearestNeighbors
+
+class kNN:
+    def __init__(self, path, mov_file, ratings_file):
+        self.mov_path = path + mov_file
+        self.ratings_path = path + ratings_file
+
+    def prep(self):
+        movies = pd.read_csv(self.mov_path)
+        ratings = pd.read_csv(self.ratings_path)
+        movies = movies.drop('genres', axis=1)
+        ratings = ratings.drop('timestamp', axis=1)
+
+        ratings_popular = handle_sparcity()
+
+    def handle_sparcity():
+        ratings_popular = ratings.groupby('movieId').filter(lambda x: len(x) >= 100)
+        user_popular = ratings_popular.groupby('userId').filter(lambda x: len(x) >= 100)
+        return user_popular
